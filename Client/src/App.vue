@@ -1,6 +1,6 @@
 <template>
   <div class="main-div">
-    <v-tabs v-model="tab" bg-color="primary">
+    <v-tabs v-model="tab" bg-color="primary" @click="reset">
       <v-tab value="one">Query 1 (PostgreSQL)</v-tab>
       <v-tab value="two">Query 2 (Neo4j)</v-tab>
       <v-tab value="three">Query 3 (IDK)</v-tab>
@@ -10,18 +10,19 @@
         <v-window-item value="one" class="query-one">
           <h1>Top 10 jobs based on a your inputted preferences</h1>
           <h2>Please select your preferred country</h2>
-          <v-autocomplete v-model="selectedCountry" label="Input Country" :items="countries" @blur="test"></v-autocomplete>
-          <h2 v-if="this.cities.length != 0" >Please select your preferred city</h2>
-          <v-autocomplete v-model="selectedCity" v-if="this.cities.length != 0" label="Input City" :items="cities"></v-autocomplete>
-          <h2>Please rank these company traits (top being highest priority)</h2>
-          <draggable class="draggable-container" :list="list" @change="log">
+          <v-autocomplete v-model="selectedCountry" label="Input Country" :items="countries" @blur="submitCountry"></v-autocomplete>
+          <h2 v-if="this.selectedCountry" >Please select your preferred city</h2>
+          <v-autocomplete v-model="selectedCity" v-if="this.selectedCountry" label="Input City" :items="cities" @blur="submitCity"></v-autocomplete>
+          <h2 v-if="this.selectedCity" >Please select your preferred sector</h2>
+          <v-autocomplete v-model="selectedSector" v-if="this.selectedCity" label="Input City" :items="sectors"></v-autocomplete>
+          <h2 v-if="this.selectedSector">Please rank these company traits (top being highest priority)</h2>
+          <draggable v-if="this.selectedSector" class="draggable-container" :list="list" @change="log">
             <div class="draggable-text-container" v-for="element,index in list" :key="element.name">
               <p>{{ index + 1  }}. {{ element.name }}</p>
             </div>
           </draggable>
-          <v-btn @click="calculatePostgreSQLQuery">Submit</v-btn>
+          <v-btn v-if="this.selectedSector" @click="calculatePostgreSQLQuery" style="margin-top: 2.5vh; margin-bottom: 5vh;" color="deep-purple-darken-2">Submit</v-btn> 
         </v-window-item>
-
         <v-window-item value="two">
           Two
         </v-window-item>
@@ -55,10 +56,12 @@ export default defineComponent({
       ],
       countries: ["United States", "Mexico", "Canada"],
       cities: ["Iowa City"],
+      sectors: ["Technology", "Finance", "Healthcare"],
       dragging: false,
       returnData: null,
       selectedCountry: null,
       selectedCity: null,
+      selectedSector: null,
 
     }
   },
@@ -71,17 +74,24 @@ export default defineComponent({
       console.log(this.selectedCountry)
       //Grab list of cities from backend and set to dropdown
     },
+    submitCity(){
+      console.log(this.selectedCity)
+      //Grab list of cities from backend and set to dropdown
+    },
     calculatePostgreSQLQuery() {
       console.log(this.selectedCountry)
       console.log(this.selectedCity)
-      let list = this.list.map(item => item.id)
-      let data = {
-        country: this.selectedCountry,
-        city: this.selectedCity,
-        list: list
-      }
+      console.log(this.selectedSector)
+      let preferences = this.list.map(item => item.id)
+      console.log(preferences)
       //Grab list of cities from backend and set to dropdown
     },
+    reset(){
+      this.selectedCountry = null
+      this.selectedCity = null
+      this.selectedSector = null
+      console.log("HIT")
+    }
   },
   async created() {
     //Grab list of countries from backend and set to dropdown
@@ -91,7 +101,8 @@ export default defineComponent({
 
 <style>
 .draggable-container {
-  font-size: 2.5em;
+  font-size: 1.5em;
+  margin-bottom: 5vh;
 }
 
 .header-container {
