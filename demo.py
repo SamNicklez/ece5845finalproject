@@ -1,115 +1,99 @@
 from neo4j import GraphDatabase as gd
 import neo4j.exceptions
 import psycopg2 as pg
+from sklearn.cluster import KMeans
+import numpy as np
 
-# QUERY DEMO RUN
+postgres_conn = None
 
-'''
-1. [PostgreSQL] Return the top 10 jobs based on a user's inputted preferences, some of our options being salary, location, benefits,
-and reviews (still unsure which will be available to the user at the moment). The user will be able to configure the importance
-of each of the preferences, such that the rank of jobs returned will be ordered using the 'weights' of each preference.
-We also plan to allow the user to filter the results by a specific preference (i.e only jobs in the Netherlands).
-'''
-def postgres_query():
-    conn = None
-    try:
-        conn = pg.connect(
-            host="s-l112.engr.uiowa.edu",
-            port=5432,
-            database="mdb_student18",
-            # Probably should make this config instead, but it's fine for now
-            user='mdb_student18',
-            password='finalproject2023')
-        cur = conn.cursor()
+def query_1():
+    '''
+    1. User inputs a country, city, sector, and then their order of importance 1-7 for each of the following:
+        - opportunities_ranking
+        - comp_benefits_ranking
+        - culture_values_ranking
+        - senior_management_ranking
+        - worklife_balance_ranking
+        - ceo_approval_ranking
+        - company_outlook_ranking
 
-        # REQUESTS FOR FILTER DROPDOWNS
-        # input -> none
-        # output -> list of all options for each filter
+    2. Values of the user's preferences comes from the frontend, with which we construct a pseudo-review node.
 
-        # demo selected values for full query
-        selected_country = 'United States'
-        selected_city = 'New York'
-        selected_sector = 'Business Services'
+    3. We then use the cosine similarity algorithm to find the most 10 most similar reviews to the pseudo-review.
 
-        # country dropdown
-        cur.execute("SELECT DISTINCT country FROM Job")
-        countries_dropdown = cur.fetchall()
+    4. We then return the top 10 jobs associated with those reviews.
+    '''
 
-        #city dropdown (once country is selected)
-        cur.execute("SELECT DISTINCT city FROM Job WHERE country = " + "'" + selected_country + "'")
-        cities_dropdown = cur.fetchall()
-
-        # sector dropdown
-        cur.execute("SELECT DISTINCT sector FROM Company")
-        sectors_dropdown = cur.fetchall()
-
-
-        # input -> list of the 7 factors in order of greatest importance to least importance.
-        # output -> list of tuples containing top 10 results. Gotta figure out how those are exactly formatted.
-        #                - fields in the tuple: job_title, city, country, fifty_percentile_salary, company_name
-        demo_list = ['opportunities_ranking', 'comp_benefits_ranking', 'culture_values_ranking', 'senior_management_ranking', 'worklife_balance_ranking', 'ceo_approval_ranking', 'company_outlook_ranking']
-        # items in the list gotta look exactly like this otherwise the query will get goofed up.
-
-        # The Big Query
-        query = (
-            'SELECT j.job_title, j.city, j.country, s.fifty_percentile_salary, c.name'
-            'FROM Job j, Salary s, Company c, Review r '
-            'WHERE j.salary_id = s.salary_id AND j.company_id = c.id ')
-        
-        # Adds filtering
-        if selected_country:
-            query += 'AND j.country = ' + "'" + selected_country + "' "
-        if selected_city:
-            query += 'AND j.city = ' + "'" + selected_city + "' "
-        if selected_sector:
-            query += 'AND c.sector = ' + "'" + selected_sector + "' "
-        
-        # Determines ordering based on user preferences
-        query += 'ORDER BY '
-        for i in range(len(demo_list)):
-            query +=  'r.' + demo_list[i] + ', '
-        query += 'r.overall_rating NULLS LAST LIMIT 10'
-
-        # Executing the query + returning the data
-        cur.execute(query)
-        top_10_jobs = cur.fetchall()
-        for job in top_10_jobs:
-            print(job)
-    except (Exception, pg.DatabaseError) as error:
-        print(error)
-    finally:
-        if conn is not None:
-            conn.close()
-
-'''
-2. [Neo4J] We will cluster companies around countries/cities, and allow the user to query a city or company and return the other
-companies in the cluster. Hoping to add a feature that allows the user to search for certain keywords in employee reviews as well.
-'''
-def neo4j_query():
-    driver = gd.driver("neo4j+s://34a20161.databases.neo4j.io:7687", auth=("neo4j", "sfIAsIHJ3vE49MOTEesIbizUlrCuMgUK0FvCmW-06L0"))
+    # Configure Neo4J Connection
+    driver = gd.driver("neo4j+s34a20161.databases.neo4j.io:7687", auth=("neo4j", "hello"))
     try:
         driver.verify_connectivity()
     except neo4j.exceptions.ServiceUnavailable:
         print('Connection to Neo4j database failed. Please try again.')
         exit()
-    with driver.session() as sesh:
-        # NEO4J DATABASE WILL ALREADY BE CLUSTERED BY job.city. Now to query.
 
-        # input -> city name
-        # output -> list of 10 companies in the city with most reviews and highest average rating
-        input_city = 'New York, NY'
-        query = ('MATCH (r:review)-[rf:REVIEW_FOR]->(j:job)-[:AT_COMPANY]->(c:company) '
-            'WHERE j.city=$input_city '
-            'WITH c.company_id AS companyId, c.name AS companyName, COUNT(rf) AS numRating, AVG(r.overall_ranking) AS avgRating '
-            'RETURN companyName, numRating, avgRating '
-            'ORDER BY numRating DESC, avgRating DESC '
-            'LIMIT 10;')
-        result = sesh.run(query, input_city=input_city).data()
-        # demo on how to process results
-        for i in range(len(result)):
-            print((str)(i+1) + ". " + result[i]['companyName'] + " with " + (str)(result[i]['numRating']) + " reviews and an average rating of " + (str)(result[i]['avgRating']))
+    # Neo4J similarity construction
+    neo_similarity_query = """
+        WITH $job_review_preferences AS job_review_preferences
+        MATCH (r:Review)-[:REVIEW_FOR]->[j:Job]
+        WITH r, job_review_preferences, j
+            [
+                r.opportunities_ranking,
+                r.comp_benefits_ranking,
+                r.culture_values_ranking,
+                r.senior_management_ranking,
+                r.worklife_balance_ranking,
+                r.ceo_approval_ranking,
+                r.company_outlook_ranking
+            ] AS job_review_rankings
+        WITH r, gds.similarity.cosine(job_review_preferences, job_review_rankings) AS similarity, j
+        RETURN j.job_id AS jobId, similarity AS cosineSimilarity
+        ORDER BY similarity DESC
+        LIMIT 10
+        """
+    
+    postgres_job_info_query = """
+        SELECT j.job_title, c.company_name
+        """
 
-    sesh.close()
-    driver.close()
+    with driver.session() as session:
+        cluster_reviews()
 
-neo4j_query()
+        # Grab relevant jobs with user scores
+        demo_job_review_preferences = [3, 5, 7, 2, 1, 6, 4]
+        result = session.run(neo_similarity_query, job_review_preferences=demo_job_review_preferences)
+        jobs = [job for job in result]
+
+        # Grab relevant job info from PostgreSQL
+
+    try:
+            # Configure PostgreSQL connection
+        postgres_conn = pg.connect(
+            host="s-l112.engr.uiowa.edu",
+            port=5432,
+            database="mdb_student18",
+            user='mdb_student18',
+            password='finalproject2023')
+        cur = postgres_conn.cursor()
+
+    except (Exception, pg.DatabaseError) as error:
+        print(error)
+    finally:
+        if postgres_conn is not None:
+            postgres_conn.close()
+    return
+
+def cluster_reviews(song_features, num_clusters=3):
+    # Cluster the songs
+    kmeans = KMeans(n_clusters=num_clusters, random_state=0).fit(song_features)
+    centroids = kmeans.cluster_centers_
+    return centroids
+
+'''
+2. [Neo4J] We will cluster companies around countries/cities, and allow the user to query a city or company and return the other
+companies in the cluster. Hoping to add a feature that allows the user to search for certain keywords in employee reviews as well.
+'''
+def query_2():
+    return
+
+query_1()
