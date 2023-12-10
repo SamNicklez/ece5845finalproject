@@ -91,7 +91,7 @@ def sectors_distinct(country, city):
     return [sector[0] for sector in sectors]
 
 
-@app.route('/similar/ranks', methods=['GET'])
+@app.route('/similarly/ranked/jobs', methods=['GET'])
 def similar_ranks():
     data = request.json
     country = data['country']
