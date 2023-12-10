@@ -5,7 +5,7 @@ from flask import Flask, request
 from flask_cors import CORS
 
 from neo4j_db import get_neo4j_db, get_similar_jobs
-from postgres_db import get_postgres_db
+from postgres_db import get_postgres_db, get_all_job_info
 
 # Load .env file
 load_dotenv()
@@ -113,9 +113,11 @@ def similar_ranks():
     print("ranks: ", ranks)
 
     job_ids = get_similar_jobs(neo4j_db, country, city, sector, ranks)
-    jobs_ids = [x for x in range(176601, 176613)]
+    job_ids = [333920, 333991, 334115, 333950, 333911]
 
-    # get_all_job_info(postgres_db, job_ids)
+    print("job_ids: ", job_ids)
+
+    return get_all_job_info(postgres_db, job_ids)
 
 
 
