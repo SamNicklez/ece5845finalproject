@@ -1,4 +1,3 @@
-import './assets/main.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import "vuetify/dist/vuetify.min.css";
