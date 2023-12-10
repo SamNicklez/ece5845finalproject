@@ -35,8 +35,8 @@ def query_1():
     # Neo4J similarity construction
     neo_similarity_query = """
         WITH $job_review_preferences AS job_review_preferences
-        MATCH (r:Review)-[:REVIEW_FOR]->[j:Job]
-        WITH r, job_review_preferences, j
+        MATCH (r:Review)
+        WITH r, job_review_preferences
             [
                 r.opportunities_ranking,
                 r.comp_benefits_ranking,
@@ -46,8 +46,8 @@ def query_1():
                 r.ceo_approval_ranking,
                 r.company_outlook_ranking
             ] AS job_review_rankings
-        WITH r, gds.similarity.cosine(job_review_preferences, job_review_rankings) AS similarity, j
-        RETURN j.job_id AS jobId, similarity AS cosineSimilarity
+        WITH r, gds.similarity.cosine(job_review_preferences, job_review_rankings) AS similarity
+        RETURN r.review_id AS reviewId, similarity AS cosineSimilarity
         ORDER BY similarity DESC
         LIMIT 10
         """
