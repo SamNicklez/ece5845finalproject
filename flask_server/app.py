@@ -1,10 +1,10 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 
-from neo4j_db import get_neo4j_db
+from neo4j_db import get_neo4j_db, get_similar_jobs
 from postgres_db import get_postgres_db
 
 # Load .env file
@@ -89,6 +89,28 @@ def sectors_distinct(country, city):
         )
         sectors = cursor.fetchall()
     return [sector[0] for sector in sectors]
+
+
+@app.route('/similar/ranks', methods=['GET'])
+def similar_ranks():
+    data = request.json
+    country = data['country']
+    city = data['city']
+    sector = data['sector']
+    ranks = [
+        data['ranks']['opportunities_ranking'],
+        data['ranks']['comp_benefits_ranking'],
+        data['ranks']['culture_values_ranking'],
+        data['ranks']['senior_management_ranking'],
+        data['ranks']['worklife_balance_ranking'],
+        data['ranks']['ceo_approval_ranking'],
+        data['ranks']['company_outlook_ranking']
+    ]
+
+    results = get_similar_jobs(neo4j_db, country, city, sector, ranks)
+
+
+
 
 
 
