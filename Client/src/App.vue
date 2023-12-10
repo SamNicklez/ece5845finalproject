@@ -111,9 +111,10 @@ export default defineComponent({
       .then(response => response.json()) // Assuming the response is in JSON format
       .then(result => {
         this.countries = result.map(country =>
-          country.charAt(0).toUpperCase() + country.slice(1).toLowerCase()
+          country.split(' ').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' ')
         );
-        console.log(this.countries);
       })
       .catch(error => console.log('error', error));
 
