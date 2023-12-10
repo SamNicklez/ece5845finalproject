@@ -58,6 +58,15 @@ export default defineComponent({
         { name: 'CEO Approval', id: 'ceo_approval_ranking' },
         { name: 'Company Outlook', id: 'company_outlook_ranking' },
       ],
+      jsonList: {
+        "opportunities_ranking": 1,
+        "comp_benefits_ranking": 2,
+        "culture_values_ranking": 3,
+        "senior_management_ranking": 4,
+        "worklife_balance_ranking": 5,
+        "ceo_approval_ranking": 6,
+        "company_outlook_ranking": 7,
+      },
       countries: [],
       cities: [],
       sectors: [],
@@ -71,10 +80,14 @@ export default defineComponent({
   },
   methods: {
     log(event) {
-      console.log(event)
-      console.log(this.list)
+      this.jsonList = this.list.reduce((obj, item, index) => {
+        obj[item.id] = index + 1;
+        return obj;
+      }, {});
     },
     submitCountry() {
+      this.selectedCity = null
+      this.selectedSector = null
       if (this.selectedCountry != null) {
         var requestOptions = {
           method: 'GET',
@@ -82,26 +95,75 @@ export default defineComponent({
         };
 
         fetch("http://127.0.0.1:5000/cities/distinct/" + this.selectedCountry, requestOptions)
-          .then(response => response.json()) // Parse the response as JSON
+          .then(response => response.json())
           .then(result => {
-            this.cities = result; // Assign the result to this.cities
-            console.log(this.cities); // Optional: log this.cities to the console
+            this.cities = result.map(city =>
+              city.split(' ')
+                .map(word =>
+                  word.length === 2 ? word.toUpperCase() :
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                )
+                .join(' ')
+            );
+            this.cities.push("No Preference");
           })
           .catch(error => console.log('error', error));
+
+
       }
-      //Grab list of cities from backend and set to dropdown
     },
     submitCity() {
-      console.log(this.selectedCity)
-      //Grab list of cities from backend and set to dropdown
+      this.selectedSector = null
+      if (this.selectedCity == "No Preference") {
+        this.selectedCity = null
+      }
+      else {
+        var requestOptions = {
+          method: 'GET',
+          redirect: 'follow'
+        };
+
+        fetch("http://127.0.0.1:5000/sectors/distinct/" + this.selectedCountry + "/" + this.selectedCity, requestOptions)
+          .then(response => response.json())  // Parse the response as JSON
+          .then(result => {
+            this.sectors = result.map(sector => {
+              if (sector === null) {
+                return "Other";
+              } else {
+                return sector.split(' ')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                  .join(' ');
+              }
+            });
+          })
+          .catch(error => console.log('error', error));
+
+
+      }
     },
     calculatePostgreSQLQuery() {
-      console.log(this.selectedCountry)
-      console.log(this.selectedCity)
-      console.log(this.selectedSector)
-      let preferences = this.list.map(item => item.id)
-      console.log(preferences)
-      //Grab list of cities from backend and set to dropdown
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      var queryParams = new URLSearchParams({
+        country: this.selectedCountry,
+        city: this.selectedCity,
+        sector: this.selectedSector,
+        // Assuming this.jsonList is an array or object that needs to be stringified
+        ranks: this.jsonList
+      }).toString();
+
+      var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+      };
+
+      fetch("http://127.0.0.1:5000/similarly/ranked/jobs?" + queryParams, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
+
     },
     reset() {
       this.selectedCountry = null
