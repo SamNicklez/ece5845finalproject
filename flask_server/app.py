@@ -49,15 +49,33 @@ def cities_distinct(country):
         SELECT LOWER(city)
         FROM final_project.job
         WHERE
-            LOWER(country) = LOWER(%s) AND
-
+            LOWER(country) = LOWER(%s)
         GROUP BY LOWER(city)
-        HAVING COUNT(*) > 100;
+        HAVING COUNT(DISTINCT sector) > 1;
         """,
         (country,)
     )
     cities = cursor.fetchall()
     return [city[0] for city in cities]
+
+
+@app.route('/sectors/distinct/<country>/<city>', methods=['GET'])
+def sectors_distinct(country, city):
+    cursor = postgres_db.cursor()
+    cursor.execute(
+        """
+        SELECT LOWER(sector)
+        FROM final_project.job
+        WHERE
+            LOWER(country) = LOWER(%s) AND
+            LOWER(city) = LOWER(%s)
+        GROUP BY LOWER(sector)
+        HAVING COUNT(*) > 100;
+        """,
+        (country, city)
+    )
+    sectors = cursor.fetchall()
+    return [sector[0] for sector in sectors]
 
 
 
