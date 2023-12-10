@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+import os
+
+from dotenv import load_dotenv
+from flask import Flask, jsonify
 
 from neo4j_db import get_neo4j_db
 from postgres_db import get_postgres_db
-from dotenv import load_dotenv
-import os
 
 # Load .env file
 load_dotenv()
@@ -23,10 +24,24 @@ postgres_db = get_postgres_db(POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD)
 neo4j_db = get_neo4j_db(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
 
 
-@app.route('/')
-def index():
-    return "Hello, World!"
+@app.route('/countries/distinct', methods=['GET'])
+def countries_distinct():
+    cursor = postgres_db.cursor()
+    cursor.execute(
+        """
+        SELECT LOWER(country)
+        FROM final_project.job
+        GROUP BY LOWER(country)
+        HAVING COUNT(*) > 100;
+        """
+    )
+    countries = cursor.fetchall()
+    return [country[0] for country in countries]
+
+# @app.route('/cities/distinct/<country>', methods=['GET'])
+# def countries_distinct():
+
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
