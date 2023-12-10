@@ -1,4 +1,4 @@
-# ECE:5845 Modern Databases - Final Project
+# [ECE:5845 Modern Databases - Final Project](https://pitch.com/v/ECE5845-Final-Project-Presentation-nguzuq)
 Samuel Nicklaus, Cole Arduser, Colin Hehn
 
 ### Potential Queries
