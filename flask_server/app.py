@@ -61,19 +61,33 @@ def cities_distinct(country):
 
 @app.route('/sectors/distinct/<country>/<city>', methods=['GET'])
 def sectors_distinct(country, city):
-    cursor = postgres_db.cursor()
-    cursor.execute(
-        """
-        SELECT LOWER(sector)
-        FROM final_project.job
-        WHERE
-            LOWER(country) = LOWER(%s) AND
-            LOWER(city) = LOWER(%s)
-        GROUP BY LOWER(sector);
-        """,
-        (country, city)
-    )
-    sectors = cursor.fetchall()
+    if city == 'null':
+        cursor = postgres_db.cursor()
+        cursor.execute(
+            """
+            SELECT LOWER(sector)
+            FROM final_project.job
+            WHERE
+                LOWER(country) = LOWER(%s)
+            GROUP BY LOWER(sector);
+            """,
+            (country,)
+        )
+        sectors = cursor.fetchall()
+    else:
+        cursor = postgres_db.cursor()
+        cursor.execute(
+            """
+            SELECT LOWER(sector)
+            FROM final_project.job
+            WHERE
+                LOWER(country) = LOWER(%s) AND
+                LOWER(city) = LOWER(%s)
+            GROUP BY LOWER(sector);
+            """,
+            (country, city)
+        )
+        sectors = cursor.fetchall()
     return [sector[0] for sector in sectors]
 
 
