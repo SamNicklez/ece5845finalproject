@@ -91,7 +91,7 @@ def sectors_distinct(country, city):
     return [sector[0] for sector in sectors]
 
 
-@app.route('/similarly/ranked/jobs', methods=['GET'])
+@app.route('/similarly/ranked/jobs', methods=['POST'])
 def similar_ranks():
     data = request.json
     country = data['country']
@@ -112,7 +112,12 @@ def similar_ranks():
     print("sector: ", sector)
     print("ranks: ", ranks)
 
-    results = get_similar_jobs(neo4j_db, country, city, sector, ranks)
+    job_ids = get_similar_jobs(neo4j_db, country, city, sector, ranks)
+    jobs_ids = [x for x in range(176601, 176613)]
+
+    # get_all_job_info(postgres_db, job_ids)
+
+
 
 
 
