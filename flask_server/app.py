@@ -69,8 +69,7 @@ def sectors_distinct(country, city):
         WHERE
             LOWER(country) = LOWER(%s) AND
             LOWER(city) = LOWER(%s)
-        GROUP BY LOWER(sector)
-        HAVING COUNT(*) > 100;
+        GROUP BY LOWER(sector);
         """,
         (country, city)
     )
