@@ -1,7 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify
+from flask import Flask
+from flask_cors import CORS
 
 from neo4j_db import get_neo4j_db
 from postgres_db import get_postgres_db
@@ -19,6 +20,7 @@ NEO4J_USER = os.environ.get('NEO4J_USER')
 NEO4J_PASSWORD = os.environ.get('NEO4J_PASSWORD')
 
 app = Flask(__name__)
+CORS(app)
 
 postgres_db = get_postgres_db(POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD)
 neo4j_db = get_neo4j_db(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
@@ -39,23 +41,23 @@ def countries_distinct():
     return [country[0] for country in countries]
 
 
-# @app.route('/cities/distinct/<country>', methods=['GET'])
-# def cities_distinct(country):
-#     cursor = postgres_db.cursor()
-#     cursor.execute(
-#         """
-#         SELECT LOWER(city)
-#         FROM final_project.job
-#         WHERE
-#             LOWER(country) = LOWER(%s) AND
-#
-#         GROUP BY LOWER(city)
-#         HAVING COUNT(*) > 100;
-#         """,
-#         (country,)
-#     )
-#     cities = cursor.fetchall()
-#     return [city[0] for city in cities]
+@app.route('/cities/distinct/<country>', methods=['GET'])
+def cities_distinct(country):
+    cursor = postgres_db.cursor()
+    cursor.execute(
+        """
+        SELECT LOWER(city)
+        FROM final_project.job
+        WHERE
+            LOWER(country) = LOWER(%s) AND
+
+        GROUP BY LOWER(city)
+        HAVING COUNT(*) > 100;
+        """,
+        (country,)
+    )
+    cities = cursor.fetchall()
+    return [city[0] for city in cities]
 
 
 
