@@ -38,8 +38,25 @@ def countries_distinct():
     countries = cursor.fetchall()
     return [country[0] for country in countries]
 
+
 # @app.route('/cities/distinct/<country>', methods=['GET'])
-# def countries_distinct():
+# def cities_distinct(country):
+#     cursor = postgres_db.cursor()
+#     cursor.execute(
+#         """
+#         SELECT LOWER(city)
+#         FROM final_project.job
+#         WHERE
+#             LOWER(country) = LOWER(%s) AND
+#
+#         GROUP BY LOWER(city)
+#         HAVING COUNT(*) > 100;
+#         """,
+#         (country,)
+#     )
+#     cities = cursor.fetchall()
+#     return [city[0] for city in cities]
+
 
 
 
