@@ -58,9 +58,9 @@ export default defineComponent({
         { name: 'CEO Approval', id: 'ceo_approval_ranking' },
         { name: 'Company Outlook', id: 'company_outlook_ranking' },
       ],
-      countries: ["United States", "Mexico", "Canada"],
-      cities: ["Iowa City"],
-      sectors: ["Technology", "Finance", "Healthcare"],
+      countries: [],
+      cities: [],
+      sectors: [],
       dragging: false,
       returnData: null,
       selectedCountry: null,
@@ -75,7 +75,20 @@ export default defineComponent({
       console.log(this.list)
     },
     submitCountry() {
-      console.log(this.selectedCountry)
+      if (this.selectedCountry != null) {
+        var requestOptions = {
+          method: 'GET',
+          redirect: 'follow'
+        };
+
+        fetch("http://127.0.0.1:5000/cities/distinct/" + this.selectedCountry, requestOptions)
+          .then(response => response.json()) // Parse the response as JSON
+          .then(result => {
+            this.cities = result; // Assign the result to this.cities
+            console.log(this.cities); // Optional: log this.cities to the console
+          })
+          .catch(error => console.log('error', error));
+      }
       //Grab list of cities from backend and set to dropdown
     },
     submitCity() {
