@@ -107,6 +107,11 @@ def similar_ranks():
         data['ranks']['company_outlook_ranking']
     ]
 
+    print("country: ", country)
+    print("city: ", city)
+    print("sector: ", sector)
+    print("ranks: ", ranks)
+
     results = get_similar_jobs(neo4j_db, country, city, sector, ranks)
 
 
