@@ -25,7 +25,7 @@ def query_1():
     '''
 
     # Configure Neo4J Connection
-    driver = gd.driver("neo4j+s34a20161.databases.neo4j.io:7687", auth=("neo4j", "hello"))
+    driver = gd.driver("neo4j://localhost:7687", auth=("neo4j", "hello"))
     try:
         driver.verify_connectivity()
     except neo4j.exceptions.ServiceUnavailable:
