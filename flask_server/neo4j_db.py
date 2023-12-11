@@ -57,4 +57,16 @@ def get_similar_jobs(driver, country, city, sector, ranks):
 
     return review_ids
 
+def get_companies_in_cluster(driver, company_id):
+    '''
+    1. User inputs a country and city.
+
+    2. We compute the top 5 companies in that city with the best average review score and most reviews. Return that list to the user.
+
+    3. User then clicks on a company from the list of 5. The company_id is passed to the backend.
+
+    4. We return all companies in the same cluster as the one with that company_id. User can see the whole list.
+    '''
+    return
+
 # print(get_similar_jobs(None, "United States", "New York, NY", "Information Technology", [3, 5, 7, 2, 1, 6, 4]))
