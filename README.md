@@ -35,7 +35,7 @@ Cole Finish
 ### Neo4j Setup
 1. See the project directory for 'tjr_neo4j_server.dump'. This is a backup of the Neo4J server we used locally to provide recommendation data for our project.
 2. See [this guide](https://neo4j.com/docs/desktop-manual/current/operations/create-from-dump/#:~:text=Once%20you%20have%20a%20dump,when%20creating%20a%20new%20DBMS.) for instructions on how to construct a new DBMS from a dump file. The instructions provided conduct it through the Neo4J Desktop application, but it can also be done through the command line.
-3. Ensure that the Neo4J DB you created is version 4.4.28 or later, and that the GDS library (version >= 2.5.5) is installed and enabled.
+3. Ensure that the Neo4J DB you created is version 4.4.28, and that the GDS library (version = 2.5.5) is installed and enabled.
 4. Launch the Neo4J DBMS in the GUI, and ensure it is live before you run the Recommendation Engine application.
 
 ### Running the Client Application
