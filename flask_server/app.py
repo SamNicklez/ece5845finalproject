@@ -198,7 +198,5 @@ def similar_companies(company_id, country, city):
     return {'companies': companies}
 
 
-
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
