@@ -78,7 +78,7 @@
           <h2 v-if="this.selectedSector">Find a similar company based on this company</h2>
           <v-autocomplete v-model="selectedCompany" v-if="this.selectedSector" label="Input Company"
             :items="companyNames"></v-autocomplete>
-            <v-btn v-if="this.selectedCompany" @click="calculate2ndPostgreSQLQuery"
+          <v-btn v-if="this.selectedCompany" @click="calculate2ndPostgreSQLQuery"
             style="margin-top: 2.5vh; margin-bottom: 5vh;" color="deep-purple-darken-2">Submit</v-btn>
           <v-table fixed-header height="50vh" style="margin-bottom: 25vh;" v-if="returnData">
             <thead>
@@ -293,9 +293,18 @@ export default defineComponent({
 
 
     },
-    calculate2ndPostgreSQLQuery(){
+    calculate2ndPostgreSQLQuery() {
       let company = this.companies.find(c => c.name === this.selectedCompany);
       console.log(company.id)
+      var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+
+      fetch("http://127.0.0.1:5000/similar/companies/" + company.id + "/" + this.selectedCountry + "/" + this.selectedCity + "/" + this.selectedSector, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
     }
   },
   async created() {
