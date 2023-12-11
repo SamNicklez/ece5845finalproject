@@ -25,7 +25,7 @@
           </draggable>
           <v-btn v-if="this.selectedSector" @click="calculatePostgreSQLQuery"
             style="margin-top: 2.5vh; margin-bottom: 5vh;" color="deep-purple-darken-2">Submit</v-btn>
-          <v-table fixed-header height="50vh" style = "margin-bottom: 25vh;" v-if="returnData">
+          <v-table fixed-header height="50vh" style="margin-bottom: 25vh;" v-if="returnData">
             <thead>
               <tr>
                 <th class="text-left">
@@ -65,7 +65,7 @@
           </v-table>
         </v-window-item>
         <v-window-item value="two" class="query-one">
-          <h1>Top 10 jobs based on a your inputted preferences</h1>
+          <h1>Find similar companies</h1>
           <h2>Please select your preferred country</h2>
           <v-autocomplete v-model="selectedCountry" label="Input Country" :items="countries"
             @blur="submitCountry"></v-autocomplete>
@@ -73,9 +73,14 @@
           <v-autocomplete v-model="selectedCity" v-if="this.selectedCountry" label="Input City" :items="cities"
             @blur="submitCity"></v-autocomplete>
           <h2 v-if="this.selectedCity">Please select your preferred sector</h2>
-          <v-autocomplete v-model="selectedSector" v-if="this.selectedCity" label="Input Sector"
-            :items="sectors"></v-autocomplete>
-          <v-table fixed-header height="50vh" style = "margin-bottom: 25vh;" v-if="returnData">
+          <v-autocomplete v-model="selectedSector" v-if="this.selectedCity" label="Input Sector" :items="sectors"
+            @blur="grabCompanies"></v-autocomplete>
+          <h2 v-if="this.selectedSector">Find a similar company based on this company</h2>
+          <v-autocomplete v-model="selectedCompany" v-if="this.selectedSector" label="Input Company"
+            :items="companyNames"></v-autocomplete>
+            <v-btn v-if="this.selectedCompany" @click="calculate2ndPostgreSQLQuery"
+            style="margin-top: 2.5vh; margin-bottom: 5vh;" color="deep-purple-darken-2">Submit</v-btn>
+          <v-table fixed-header height="50vh" style="margin-bottom: 25vh;" v-if="returnData">
             <thead>
               <tr>
                 <th class="text-left">
@@ -150,11 +155,14 @@ export default defineComponent({
       countries: [],
       cities: [],
       sectors: [],
+      companies: [],
+      companyNames: [],
       dragging: false,
       returnData: null,
       selectedCountry: null,
       selectedCity: null,
       selectedSector: null,
+      selectedCompany: null,
 
     }
   },
@@ -260,13 +268,34 @@ export default defineComponent({
 
     },
     reset() {
-      this.cities= []
-      this.sectors= []
-      this.returnData= null
-      this.selectedCountry= null
-      this.selectedCity= null
-      this.selectedSector= null
+      this.cities = []
+      this.sectors = []
+      this.returnData = null
+      this.selectedCountry = null
+      this.selectedCity = null
+      this.selectedSector = null
+    },
+    grabCompanies() {
+      var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
 
+      fetch("http://127.0.0.1:5000/company/" + this.selectedCountry + "/" + this.selectedCity + "/" + this.selectedSector, requestOptions)
+        .then(response => response.json()) // Parse the response as JSON
+        .then(data => {
+          this.companies = data.companies; // Assign the company data to this.companies
+          this.companyNames = data.companies.map(company => company.name); // Extract company names
+          console.log(this.companyNames); // Log company names to the console for verification
+        })
+        .catch(error => console.log('error', error));
+
+
+
+    },
+    calculate2ndPostgreSQLQuery(){
+      let company = this.companies.find(c => c.name === this.selectedCompany);
+      console.log(company.id)
     }
   },
   async created() {
