@@ -24,7 +24,7 @@ Before setting up the project, ensure that you have the following prerequisites 
 
 3. **Neo4j:** A highly scalable native graph database, which allows for efficient management and querying of connected data. Download and install Neo4j from [neo4j.com](https://neo4j.com/download/).
 
-4. **Graph Data Science (GDS) Library 4.4.28:** A library for Neo4j, enabling advanced analytics and machine learning on graphs. Ensure that you are using GDS version 4.4.28, compatible with your Neo4j version. Refer to the [Neo4j GDS installation guide](https://neo4j.com/docs/graph-data-science/current/installation/) for detailed instructions.
+4. **Graph Data Science (GDS) Library 2.5.5:** A library for Neo4j, enabling advanced analytics and machine learning on graphs. Ensure that you are using GDS version 2.5.5, compatible with your Neo4j version. Refer to the [Neo4j GDS installation guide](https://neo4j.com/docs/graph-data-science/current/installation/) for detailed instructions.
 
 ## Setup and Installation
 
