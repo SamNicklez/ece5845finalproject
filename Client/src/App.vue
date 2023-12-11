@@ -26,6 +26,44 @@
           </draggable>
           <v-btn v-if="this.selectedSector" @click="calculatePostgreSQLQuery"
             style="margin-top: 2.5vh; margin-bottom: 5vh;" color="deep-purple-darken-2">Submit</v-btn>
+          <v-table fixed-header height="50vh" v-if="returnData">
+            <thead>
+              <tr>
+                <th class="text-left">
+                  Name
+                </th>
+                <th class="text-left">
+                  Company
+                </th>
+                <th class="text-left">
+                  Size
+                </th>
+                <th class="text-left">
+                  Salary Type
+                </th>
+                <th class="text-left">
+                  Top 10% Salary
+                </th>
+                <th class="text-left">
+                  Average Salary
+                </th>
+                <th class="text-left">
+                  Lower 10% Salary
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in returnData" :key="item.id">
+                <td>{{ item.title }}</td>
+                <td>{{ item.company }}</td>
+                <td>{{ item.size }}</td>
+                <td>{{ item.salary_type }}</td>
+                <td>{{ item.top_10_salary }}</td>
+                <td>{{ item.average_salary }}</td>
+                <td>{{ item.lower_10_salary }}</td>
+              </tr>
+            </tbody>
+          </v-table>
         </v-window-item>
         <v-window-item value="two">
           Two
@@ -71,7 +109,76 @@ export default defineComponent({
       cities: [],
       sectors: [],
       dragging: false,
-      returnData: null,
+      returnData: [{
+        "id": 1,
+        "title": "Software Engineer",
+        "company": "Google",
+        "size": "Large",
+        "salary_type": "Yearly",
+        "top_10_salary": 100000,
+        "average_salary": 80000,
+        "lower_10_salary": 60000
+      },
+      {
+        "id": 2,
+        "title": "Software Engineer",
+        "company": "Google",
+        "size": "Large",
+        "salary_type": "Yearly",
+        "top_10_salary": 100000,
+        "average_salary": 80000,
+        "lower_10_salary": 60000
+      },
+      {
+        "id": 3,
+        "title": "Software Engineer",
+        "company": "Google",
+        "size": "Large",
+        "salary_type": "Yearly",
+        "top_10_salary": 100000,
+        "average_salary": 80000,
+        "lower_10_salary": 60000
+      },
+      {
+        "id": 4,
+        "title": "Software Engineer",
+        "company": "Google",
+        "size": "Large",
+        "salary_type": "Yearly",
+        "top_10_salary": 100000,
+        "average_salary": 80000,
+        "lower_10_salary": 60000
+      },
+      {
+        "id": 5,
+        "title": "Software Engineer",
+        "company": "Google",
+        "size": "Large",
+        "salary_type": "Yearly",
+        "top_10_salary": 100000,
+        "average_salary": 80000,
+        "lower_10_salary": 60000
+      },
+      {
+        "id": 6,
+        "title": "Software Engineer",
+        "company": "Google",
+        "size": "Large",
+        "salary_type": "Yearly",
+        "top_10_salary": 100000,
+        "average_salary": 80000,
+        "lower_10_salary": 60000
+      },
+      {
+        "id": 7,
+        "title": "Software Engineer",
+        "company": "Google",
+        "size": "Large",
+        "salary_type": "Yearly",
+        "top_10_salary": 100000,
+        "average_salary": 80000,
+        "lower_10_salary": 60000
+      }],
       selectedCountry: null,
       selectedCity: null,
       selectedSector: null,
@@ -145,21 +252,21 @@ export default defineComponent({
       var myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
 
-      var queryParams = new URLSearchParams({
-        country: this.selectedCountry,
-        city: this.selectedCity,
-        sector: this.selectedSector,
-        // Assuming this.jsonList is an array or object that needs to be stringified
-        ranks: this.jsonList
-      }).toString();
+      var raw = JSON.stringify({
+        "country": this.selectedCountry,
+        "city": this.selectedCity,
+        "sector": this.selectedSector,
+        "ranks": this.jsonList
+      });
 
       var requestOptions = {
-        method: 'GET',
+        method: 'POST',
         headers: myHeaders,
+        body: raw,
         redirect: 'follow'
       };
 
-      fetch("http://127.0.0.1:5000/similarly/ranked/jobs?" + queryParams, requestOptions)
+      fetch("http://127.0.0.1:5000/similarly/ranked/jobs", requestOptions)
         .then(response => response.text())
         .then(result => console.log(result))
         .catch(error => console.log('error', error));
@@ -204,7 +311,7 @@ export default defineComponent({
 }
 
 .header-container {
-  max-width: 60vw;
+  max-width: 65vw;
   outline: solid;
   margin: 2.5vh auto;
 }
