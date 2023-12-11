@@ -68,6 +68,48 @@ def get_companies_in_cluster(driver, company_id):
 
     4. We return all companies in the same cluster as the one with that company_id. User can see the whole list.
     '''
-    return
+    driver = get_neo4j_db("neo4j://localhost:7687", "neo4j", "hello")
+    with driver.session() as session:
+        # Return all companies in the same cluster as the one with that company_id
+        result = session.run("MATCH (c:Company {company_id: $company_id}), (c2:Company) WHERE c.kmeans = c2.kmeans RETURN c2.company_id AS company_id LIMIT 20", company_id=company_id)
+        companies = [company for company in result]
+        company_ids = []
+        for company in companies:
+            company_ids.append(company["company_id"])
+    return company_ids
 
 # print(get_similar_jobs(None, "United States", "New York, NY", "Information Technology", [3, 5, 7, 2, 1, 6, 4]))
+print(get_companies_in_cluster(None, 18))
+
+'''
+MATCH (c:Company)
+WITH [c.benefits_rating] AS swag, c
+SET c.br_graph = swag
+RETURN count(c)
+
+CALL gds.graph.project(
+    'company_graph',
+    {
+        Company: {
+            properties: 'br_graph'
+        }
+    },
+    '*'
+)
+
+CALL gds.kmeans.write.estimate('company_graph', {
+    writeProperty: 'br_graph',
+    nodeProperty: 'benefits_rating'
+})
+YIELD nodeCount, bytesMin, bytesMax, requiredMemory
+
+CALL gds.kmeans.write('company_graph', {
+    writeProperty: 'kmeans',
+    nodeProperty: 'br_graph',
+    k: 3,
+    randomSeed: 42
+})
+YIELD nodePropertiesWritten
+
+CALL gds.graph.drop('company_graph')
+'''

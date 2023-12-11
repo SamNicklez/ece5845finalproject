@@ -89,3 +89,35 @@ def query_2():
 
 
 query_1()
+
+
+'''
+MATCH (c:Company)
+WITH [c.benefits_rating] AS swag
+SET c.br_graph = swag
+RETURN count(c)
+
+CALL gds.graph.project(
+    'company_graph',
+    {
+        Company: {
+            properties: 'br_graph'
+        }
+    },
+    '*'
+)
+
+CALL gds.kmeans.write.estimate('company_graph', {
+    writeProperty: 'br_graph',
+    nodeProperty: 'benefits_rating'
+})
+YIELD nodeCount, bytesMin, bytesMax, requiredMemory
+
+CALL gds.kmeans.write('company_graph', {
+    writeProperty: 'kmeans',
+    nodeProperty: 'br_graph',
+    k: 3,
+    randomSeed: 42
+})
+YIELD nodePropertiesWritten
+'''
