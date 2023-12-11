@@ -86,3 +86,24 @@ Before setting up the project, ensure that you have the following prerequisites 
     ```bash
     npm run dev
 
+### General Configuration and IDE Settings
+- `.idea/` directory containing various configuration files for JetBrains IDEs.
+
+### Client Application
+- `Client/` directory with Vue.js application files:
+  - Configuration files like `.eslintrc.cjs`, `.prettierrc.json`, and `package.json`.
+  - Source code in `Client/src/App.vue`.
+  - Static assets in `Client/src/assets/`.
+  - HTML entry point `Client/index.html`.
+  - Vite configuration in `Client/vite.config.js`.
+
+### Dataset
+- `DATASET/` directory with CSV files (`Company.csv`, `Job.csv`, `Review.csv`, etc.) and Python scripts (`add_job_id.py`, `demo.py`).
+
+### Flask Server
+- `flask_server/` directory containing Python files for Flask server (`app.py`, `neo4j_db.py`, `postgres_db.py`) and a `requirements.txt` file for dependencies.
+- Compiled files and build artifacts in `flask_server/build/`.
+
+### Miscellaneous
+- Root directory files like `README.md`, `dataAvg.py`, and a Neo4j dump file `tjr_neo4j_server.dump`.
+
