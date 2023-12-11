@@ -50,6 +50,7 @@ def get_similar_jobs(driver, country, city, sector, ranks):
         # Grab relevant jobs with user scores
         result = session.run(neo_similarity_query, job_review_preferences=ranks, country=country, city=city, sector=sector)
         reviews = [review for review in result]
+        print(reviews)
     review_ids = []
     for review in reviews:
         review_ids.append(review["reviewId"])

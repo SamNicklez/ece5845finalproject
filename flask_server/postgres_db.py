@@ -15,7 +15,6 @@ def get_all_job_info(postgres_db, review_ids):
     cursor.execute(
         """
         SELECT
-            r.id,
             j.id,
             j.job_title,
             c.name,
