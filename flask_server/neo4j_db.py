@@ -1,12 +1,11 @@
 from neo4j import GraphDatabase
-
+import neo4j.exceptions
 
 def get_neo4j_db(uri, user, password):
     return GraphDatabase.driver(
         uri=uri,
         auth=(user, password)
     )
-
 
 def get_similar_jobs(driver, country, city, sector, ranks):
     '''
@@ -54,4 +53,8 @@ def get_similar_jobs(driver, country, city, sector, ranks):
     review_ids = []
     for review in reviews:
         review_ids.append(review["reviewId"])
+        # print(review["cosineSimilarity"])
+
     return review_ids
+
+# print(get_similar_jobs(None, "United States", "New York, NY", "Information Technology", [3, 5, 7, 2, 1, 6, 4]))
