@@ -130,5 +130,40 @@ def similar_ranks():
     return {'jobs': resp}
 
 
+@app.route('/company/<country>/<city>/<sector>', methods=['GET'])
+def get_companies(country, city, sector):
+    cursor = postgres_db.cursor()
+    cursor.execute(
+        """
+        SELECT
+            c.id,
+            c.name,
+            c.size,
+            c.benefits_rating
+        FROM final_project.company c
+        WHERE c.id IN (
+            SELECT DISTINCT j.company_id
+            FROM final_project.job j
+            WHERE
+                LOWER(j.country) = LOWER(%s) AND
+                LOWER(j.city) = LOWER(%s) AND
+                LOWER(j.sector) = LOWER(%s)
+        );
+        """, (country, city, sector)
+    )
+    results = cursor.fetchall()
+    companies = []
+    for result in results:
+        companies.append({
+            'id': result[0],
+            'name': result[1],
+            'size': result[2],
+            'benefits_rating': result[3]
+        })
+    return {'companies': companies}
+
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
