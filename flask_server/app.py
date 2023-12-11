@@ -163,19 +163,22 @@ def get_companies(country, city, sector):
     return {'companies': companies}
 
 
-@app.route('/similar/companies/<company_id>', methods=['GET'])
-def similar_companies(company_id):
-    results = get_companies_in_cluster(neo4j_db, company_id)
-    results = []
-    company_ids = []
+@app.route('/similar/companies/<company_id>/<country>/<city>/<sector>', methods=['GET'])
+def similar_companies(company_id, country, city, sector):
+    company_ids = get_companies_in_cluster(neo4j_db, company_id)
+    print(company_ids)
 
     cursor = postgres_db.cursor()
     cursor.execute(
         """
-        SELECT *
-        FROM final_project.company
-        WHERE id IN (%s);
-        """, (company_ids)
+        SELECT
+            c.id,
+            c.name,
+            c.size,
+            c.benefits_rating
+        FROM final_project.company c
+        WHERE c.id IN (%s);
+        """, (tuple(company_ids),)
     )
     results = cursor.fetchall()
     companies = []
