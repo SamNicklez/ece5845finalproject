@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
 
-from neo4j_db import get_neo4j_db, get_similar_jobs
+from neo4j_db import get_neo4j_db, get_similar_jobs, get_companies_in_cluster
 from postgres_db import get_postgres_db, get_all_job_info
 
 # Load .env file
@@ -150,6 +150,32 @@ def get_companies(country, city, sector):
                 LOWER(j.sector) = LOWER(%s)
         );
         """, (country, city, sector)
+    )
+    results = cursor.fetchall()
+    companies = []
+    for result in results:
+        companies.append({
+            'id': result[0],
+            'name': result[1],
+            'size': result[2],
+            'benefits_rating': result[3]
+        })
+    return {'companies': companies}
+
+
+@app.route('/similar/companies/<company_id>', methods=['GET'])
+def similar_companies(company_id):
+    results = get_companies_in_cluster(neo4j_db, company_id)
+    results = []
+    company_ids = []
+
+    cursor = postgres_db.cursor()
+    cursor.execute(
+        """
+        SELECT *
+        FROM final_project.company
+        WHERE id IN (%s);
+        """, (company_ids)
     )
     results = cursor.fetchall()
     companies = []
