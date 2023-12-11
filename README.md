@@ -57,5 +57,8 @@ Cole Finish
     ```bash
     npm run dev
 
+### Neo4j Setup
+Colin Finish, make sure to mention the dump file
+
 ### Additional Information
 
