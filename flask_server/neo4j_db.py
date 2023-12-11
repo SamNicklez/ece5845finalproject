@@ -70,7 +70,14 @@ def get_companies_in_cluster(driver, company_id):
     '''
     with driver.session() as session:
         # Return all companies in the same cluster as the one with that company_id
-        result = session.run("MATCH (c:Company {company_id: $company_id}), (c2:Company) WHERE c.kmeans = c2.kmeans RETURN c2.company_id AS company_id LIMIT 20", company_id=company_id)
+        result = session.run(
+            """
+            MATCH (c:Company {company_id: $company_id}), (c2:Company)
+            WHERE c.kmeans = c2.kmeans
+            RETURN c2.company_id AS company_id
+            LIMIT 20
+            """, company_id=company_id
+        )
         companies = [company for company in result]
         print(companies)
         company_ids = []
