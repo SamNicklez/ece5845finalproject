@@ -107,24 +107,24 @@ def similar_ranks():
         data['ranks']['company_outlook_ranking']
     ]
 
-    print("country: ", country)
-    print("city: ", city)
-    print("sector: ", sector)
-    print("ranks: ", ranks)
+    review_ids = get_similar_jobs(neo4j_db, country, city, sector, ranks)
 
-    job_ids = get_similar_jobs(neo4j_db, country, city, sector, ranks)
-    job_ids = [333920, 333991, 334115, 333950, 333911]
-
-    print("job_ids: ", job_ids)
-
-    return get_all_job_info(postgres_db, job_ids)
-
-
-
-
-
-
-
+    resp = []
+    jobs = get_all_job_info(postgres_db, review_ids)
+    for i in review_ids:
+        for job in jobs:
+            if i == job[0]:
+                resp.append({
+                    'job_id': job[1],
+                    'job_title': job[2],
+                    'company_name': job[3],
+                    'company_size': job[4],
+                    'salary_type': job[5],
+                    'ten_percentile_salary': job[6],
+                    'fifty_percentile_salary': job[7],
+                    'ninety_percentile_salary': job[8]
+                })
+    return {'jobs': resp}
 
 
 if __name__ == '__main__':
