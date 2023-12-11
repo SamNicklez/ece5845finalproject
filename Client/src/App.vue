@@ -25,47 +25,94 @@
           </draggable>
           <v-btn v-if="this.selectedSector" @click="calculatePostgreSQLQuery"
             style="margin-top: 2.5vh; margin-bottom: 5vh;" color="deep-purple-darken-2">Submit</v-btn>
-          <v-table fixed-header height="50vh" v-if="returnData">
+          <v-table fixed-header height="50vh" style = "margin-bottom: 25vh;" v-if="returnData">
             <thead>
               <tr>
                 <th class="text-left">
-                  Name
+                  Job Title
                 </th>
                 <th class="text-left">
-                  Company
+                  Company Name
                 </th>
                 <th class="text-left">
-                  Size
+                  Company Size
                 </th>
                 <th class="text-left">
                   Salary Type
                 </th>
                 <th class="text-left">
-                  Top 10% Salary
-                </th>
-                <th class="text-left">
                   Average Salary
                 </th>
                 <th class="text-left">
-                  Lower 10% Salary
+                  Top 10% Salary
+                </th>
+                <th class="text-left">
+                  Bottom 10% Salary
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="item in returnData" :key="item.id">
-                <td>{{ item.title }}</td>
-                <td>{{ item.company }}</td>
-                <td>{{ item.size }}</td>
+                <td>{{ item.job_title }}</td>
+                <td>{{ item.company_name }}</td>
+                <td>{{ item.company_size }}</td>
                 <td>{{ item.salary_type }}</td>
-                <td>{{ item.top_10_salary }}</td>
-                <td>{{ item.average_salary }}</td>
-                <td>{{ item.lower_10_salary }}</td>
+                <td>{{ item.fifty_percentile_salary }}</td>
+                <td>{{ item.ninety_percentile_salary }}</td>
+                <td>{{ item.ten_percentile_salary }}</td>
               </tr>
             </tbody>
           </v-table>
         </v-window-item>
-        <v-window-item value="two">
-          Two
+        <v-window-item value="two" class="query-one">
+          <h1>Top 10 jobs based on a your inputted preferences</h1>
+          <h2>Please select your preferred country</h2>
+          <v-autocomplete v-model="selectedCountry" label="Input Country" :items="countries"
+            @blur="submitCountry"></v-autocomplete>
+          <h2 v-if="this.selectedCountry">Please select your preferred city</h2>
+          <v-autocomplete v-model="selectedCity" v-if="this.selectedCountry" label="Input City" :items="cities"
+            @blur="submitCity"></v-autocomplete>
+          <h2 v-if="this.selectedCity">Please select your preferred sector</h2>
+          <v-autocomplete v-model="selectedSector" v-if="this.selectedCity" label="Input Sector"
+            :items="sectors"></v-autocomplete>
+          <v-table fixed-header height="50vh" style = "margin-bottom: 25vh;" v-if="returnData">
+            <thead>
+              <tr>
+                <th class="text-left">
+                  Job Title
+                </th>
+                <th class="text-left">
+                  Company Name
+                </th>
+                <th class="text-left">
+                  Company Size
+                </th>
+                <th class="text-left">
+                  Salary Type
+                </th>
+                <th class="text-left">
+                  Average Salary
+                </th>
+                <th class="text-left">
+                  Top 10% Salary
+                </th>
+                <th class="text-left">
+                  Bottom 10% Salary
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in returnData" :key="item.id">
+                <td>{{ item.job_title }}</td>
+                <td>{{ item.company_name }}</td>
+                <td>{{ item.company_size }}</td>
+                <td>{{ item.salary_type }}</td>
+                <td>{{ item.fifty_percentile_salary }}</td>
+                <td>{{ item.ninety_percentile_salary }}</td>
+                <td>{{ item.ten_percentile_salary }}</td>
+              </tr>
+            </tbody>
+          </v-table>
         </v-window-item>
       </v-window>
     </div>
@@ -104,76 +151,7 @@ export default defineComponent({
       cities: [],
       sectors: [],
       dragging: false,
-      returnData: [{
-        "id": 1,
-        "title": "Software Engineer",
-        "company": "Google",
-        "size": "Large",
-        "salary_type": "Yearly",
-        "top_10_salary": 100000,
-        "average_salary": 80000,
-        "lower_10_salary": 60000
-      },
-      {
-        "id": 2,
-        "title": "Software Engineer",
-        "company": "Google",
-        "size": "Large",
-        "salary_type": "Yearly",
-        "top_10_salary": 100000,
-        "average_salary": 80000,
-        "lower_10_salary": 60000
-      },
-      {
-        "id": 3,
-        "title": "Software Engineer",
-        "company": "Google",
-        "size": "Large",
-        "salary_type": "Yearly",
-        "top_10_salary": 100000,
-        "average_salary": 80000,
-        "lower_10_salary": 60000
-      },
-      {
-        "id": 4,
-        "title": "Software Engineer",
-        "company": "Google",
-        "size": "Large",
-        "salary_type": "Yearly",
-        "top_10_salary": 100000,
-        "average_salary": 80000,
-        "lower_10_salary": 60000
-      },
-      {
-        "id": 5,
-        "title": "Software Engineer",
-        "company": "Google",
-        "size": "Large",
-        "salary_type": "Yearly",
-        "top_10_salary": 100000,
-        "average_salary": 80000,
-        "lower_10_salary": 60000
-      },
-      {
-        "id": 6,
-        "title": "Software Engineer",
-        "company": "Google",
-        "size": "Large",
-        "salary_type": "Yearly",
-        "top_10_salary": 100000,
-        "average_salary": 80000,
-        "lower_10_salary": 60000
-      },
-      {
-        "id": 7,
-        "title": "Software Engineer",
-        "company": "Google",
-        "size": "Large",
-        "salary_type": "Yearly",
-        "top_10_salary": 100000,
-        "average_salary": 80000,
-        "lower_10_salary": 60000
-      }],
+      returnData: null,
       selectedCountry: null,
       selectedCity: null,
       selectedSector: null,
@@ -262,19 +240,33 @@ export default defineComponent({
       };
 
       fetch("http://127.0.0.1:5000/similarly/ranked/jobs", requestOptions)
-        .then(response => response.json()) // Parse the response as JSON
+        .then(response => response.json())
         .then(data => {
-          this.returnData = data.jobs; // Assign the 'jobs' array to 'returnData'
-          console.log(this.returnData); // Log it to the console for verification
+          // Process each job to handle null values and round salaries
+          const processedJobs = data.jobs.map(job => {
+            Object.keys(job).forEach(key => {
+              if (job[key] === null) {
+                job[key] = 'NA'; // Replace null with 'NA'
+              } else if (typeof job[key] === 'number') {
+                job[key] = parseFloat(job[key].toFixed(2)); // Round numbers to 2 decimal places
+              }
+            });
+            return job;
+          });
+
+          this.returnData = processedJobs;
         })
         .catch(error => console.log('error', error));
 
     },
     reset() {
-      this.selectedCountry = null
-      this.selectedCity = null
-      this.selectedSector = null
-      console.log("HIT")
+      this.cities= []
+      this.sectors= []
+      this.returnData= null
+      this.selectedCountry= null
+      this.selectedCity= null
+      this.selectedSector= null
+
     }
   },
   async created() {
