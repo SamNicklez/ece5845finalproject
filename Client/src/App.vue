@@ -80,41 +80,18 @@
             :items="companyNames"></v-autocomplete>
           <v-btn v-if="this.selectedCompany" @click="calculate2ndPostgreSQLQuery"
             style="margin-top: 2.5vh; margin-bottom: 5vh;" color="deep-purple-darken-2">Submit</v-btn>
+          <h2 v-if="this.returnData">Similar companies</h2>
           <v-table fixed-header height="50vh" style="margin-bottom: 25vh;" v-if="returnData">
             <thead>
               <tr>
                 <th class="text-left">
-                  Job Title
-                </th>
-                <th class="text-left">
-                  Company Name
-                </th>
-                <th class="text-left">
-                  Company Size
-                </th>
-                <th class="text-left">
-                  Salary Type
-                </th>
-                <th class="text-left">
-                  Average Salary
-                </th>
-                <th class="text-left">
-                  Top 10% Salary
-                </th>
-                <th class="text-left">
-                  Bottom 10% Salary
+                  Company
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in returnData" :key="item.id">
-                <td>{{ item.job_title }}</td>
-                <td>{{ item.company_name }}</td>
-                <td>{{ item.company_size }}</td>
-                <td>{{ item.salary_type }}</td>
-                <td>{{ item.fifty_percentile_salary }}</td>
-                <td>{{ item.ninety_percentile_salary }}</td>
-                <td>{{ item.ten_percentile_salary }}</td>
+              <tr v-for="(item, index) in returnData" :key="index">
+                <td>{{ item }}</td>
               </tr>
             </tbody>
           </v-table>
@@ -301,10 +278,15 @@ export default defineComponent({
         redirect: 'follow'
       };
 
-      fetch("http://127.0.0.1:5000/similar/companies/" + company.id + "/" + this.selectedCountry + "/" + this.selectedCity + "/" + this.selectedSector, requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
+      fetch("http://127.0.0.1:5000/similar/companies/" + company.id + "/" + this.selectedCountry + "/" + this.selectedCity, requestOptions)
+        .then(response => response.json()) // Parse the response as JSON
+        .then(data => {
+          this.returnData = data.companies.map(company => company.name); // Extract and assign company names
+          console.log(this.returnData); // Log the company names to the console for verification
+        })
         .catch(error => console.log('error', error));
+
+
     }
   },
   async created() {
