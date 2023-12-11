@@ -1,9 +1,8 @@
 <template>
   <div class="main-div">
     <v-tabs v-model="tab" bg-color="primary" @click="reset">
-      <v-tab value="one">Query 1 (PostgreSQL)</v-tab>
-      <v-tab value="two">Query 2 (Neo4j)</v-tab>
-      <v-tab value="three">Query 3 (IDK)</v-tab>
+      <v-tab value="one">Query 1</v-tab>
+      <v-tab value="two">Query 2</v-tab>
     </v-tabs>
     <div class="header-container">
       <v-window v-model="tab">
@@ -16,7 +15,7 @@
           <v-autocomplete v-model="selectedCity" v-if="this.selectedCountry" label="Input City" :items="cities"
             @blur="submitCity"></v-autocomplete>
           <h2 v-if="this.selectedCity">Please select your preferred sector</h2>
-          <v-autocomplete v-model="selectedSector" v-if="this.selectedCity" label="Input City"
+          <v-autocomplete v-model="selectedSector" v-if="this.selectedCity" label="Input Sector"
             :items="sectors"></v-autocomplete>
           <h2 v-if="this.selectedSector">Please rank these company traits (top being highest priority)</h2>
           <draggable v-if="this.selectedSector" class="draggable-container" :list="list" @change="log">
@@ -67,10 +66,6 @@
         </v-window-item>
         <v-window-item value="two">
           Two
-        </v-window-item>
-
-        <v-window-item value="three">
-          Three
         </v-window-item>
       </v-window>
     </div>
@@ -267,8 +262,11 @@ export default defineComponent({
       };
 
       fetch("http://127.0.0.1:5000/similarly/ranked/jobs", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
+        .then(response => response.json()) // Parse the response as JSON
+        .then(data => {
+          this.returnData = data.jobs; // Assign the 'jobs' array to 'returnData'
+          console.log(this.returnData); // Log it to the console for verification
+        })
         .catch(error => console.log('error', error));
 
     },
