@@ -8,7 +8,7 @@ Note that the dataset we used has been heavily modified to meet our needs. For t
 
 ## Overview
 
-This project is a comprehensive application leveraging Python, Flask, Neo4j, and the Graph Data Science (GDS) library version 4.4.28. It is designed to utilize the powerful features of these technologies, offering a robust backend system with advanced data processing and graph database capabilities.
+This project is a comprehensive application leveraging Python, Flask, Neo4j, and the Graph Data Science (GDS) library version 4.4.28. It is designed to utilize the powerful features of these technologies, offering a robust backend system with advanced data processing and graph database capabilities. The client application allows users to input preferences for job searches, such as preferred country, city, and sector. It then queries the backend to provide job recommendations based on these preferences.
 
 ## Prerequisites
 
